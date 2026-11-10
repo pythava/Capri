@@ -40,6 +40,8 @@ def main():
                     print(f"[*] 카프리가 도구를 실행합니다 : {res_action} {tool_input}")
                     tool_result = base.main(res_action, tool_input, message)
 
+                    print(f"[*] 도구 '{res_action}' 실행 결과: {tool_result}")
+
                     messages.append({
                         "role": "user",
                         "content": f"[도구 '{res_action}' 실행 결과]\n {tool_result}"

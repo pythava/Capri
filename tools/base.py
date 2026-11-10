@@ -1,5 +1,7 @@
 from tools.list import TOOLS
 from tools.implementations.bash import bash
+from tools.implementations.python_runner import python_runner
+from tools.implementations.file_interactive import file_generate
 
 tool_list = TOOLS
 
@@ -9,12 +11,12 @@ def main(llm_action, llm_input, llm_message):
     return excute_tool_result
 
 TOOL_MAP = {
-    "bash": bash
+    "bash": bash,
+    "python_runner": python_runner,
+    "file_generate": file_generate
 }
 
 def execute_tool(llm_action, llm_input):
-    print(llm_action)
-    print(llm_input)
     
     if llm_action not in TOOLS:
         return f"에러! : unknown tool '{llm_action}'"
