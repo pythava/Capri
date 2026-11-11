@@ -1,6 +1,7 @@
 from openai import OpenAI
 from llm import client, healthy
 from tools import base
+from agent.slot import SlotManager
 import json
 
 with open("llm/prompts/system.txt", "r", encoding="utf-8") as f:
@@ -15,6 +16,8 @@ def main():
     result_healthy_check = healthy.llm_health_check()
 
     if result_healthy_check == "pong":
+        manager = SlotManager(max_slots=6)
+
         print(f"[+] LLM이 정상적으로 연결되어 있습니다")
         while True:
             print("Capri > ", end="")
@@ -26,6 +29,7 @@ def main():
 
                 res_action = response_req_llm.get("action")
                 tool_input = response_req_llm.get("input", {})
+                slot = response_req_llm.get("slot", "0")
                 message = response_req_llm.get("message", "")
 
                 messages.append({
@@ -36,16 +40,50 @@ def main():
                 if res_action == "respond":
                     print(f"\nCapri : {message}\n")
                     break
-                else:
-                    print(f"[*] 카프리가 도구를 실행합니다 : {res_action} {tool_input}")
-                    tool_result = base.main(res_action, tool_input, message)
+                elif res_action == "slot_check":
+                    target_slot = slot
 
-                    print(f"[*] 도구 '{res_action}' 실행 결과: {tool_result}")
+                    print(f"[*] 카프리가 {target_slot}번 슬롯의 상태를 조회합니다...")
+
+                    slot_result = manager.get_result(target_slot)
+
+                    if slot_result is None:
+                        result_msg = f"[{target_slot}번 슬롯] 아직 작업이 진행 중이거나 비어 있습니다."
+                    else:
+                        result_msg = f"[{target_slot}번 슬롯] 작업 완료 결과:\n {slot_result}"
+                    
+                    print(result_msg)
 
                     messages.append({
-                        "role": "user",
-                        "content": f"[도구 '{res_action}' 실행 결과]\n {tool_result}"
+                        "role": "assistant",
+                        "content": f"슬롯 조회 결과 : {result_msg}"
                     })
+                
+                else:
+                    if slot == 0:
+                        print(f"[*] 카프리가 도구를 실행합니다 : {res_action} {tool_input}")
+                        tool_result = base.main(res_action, tool_input, message)
+
+                        print(f"[*] 도구 '{res_action}' 실행 결과: {tool_result}")
+
+                        messages.append({
+                            "role": "user",
+                            "content": f"[도구 '{res_action}' 실행 결과]\n {tool_result}"
+                        })
+                    else:
+                        print(f"[*] 카프리가 {slot}번 슬롯에서 도구를 실행합니다 : {res_action} {tool_input}")
+                        
+                        manager.run_slot(slot, base.main, res_action, tool_input, message)
+                        
+                        print(f"[*] {slot}번 슬롯에 작업이 등록되었습니다. (백그라운드 실행 중)")
+                        
+                        messages.append({
+                            "role": "user",
+                            "content": f"[시스템] 작업이 {slot}번 슬롯에 백그라운드 등록되었습니다."
+                        })
+                        break
+
+                        
                     
     
     else:
