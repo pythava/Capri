@@ -17,7 +17,7 @@ def python_runner(code):
     try:
         result = subprocess.run(
             [sys.executable, file_name],
-            capture_output=True, text=True, timeout=30
+            capture_output=True, text=True, timeout=120
         )
         return result.stdout + result.stderr
     except subprocess.TimeoutExpired:

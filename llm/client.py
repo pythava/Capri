@@ -2,7 +2,9 @@ import requests
 from config import BASE_URL, MODEL_NAME, API_KEY
 import json
 
-def req_to_llm(messages):
+def req_to_llm(messages, slot_status):
+
+    messages.append({"role": "assistant", "content": f"현재 슬롯 상태 : {slot_status}"})
 
     res = requests.post(
         f"{BASE_URL}/api/chat",

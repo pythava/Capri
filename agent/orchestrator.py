@@ -12,6 +12,7 @@ messages = [
 ]
 
 def main():
+
     print(f"[*] LLM의 접속 상태를 확인하는중...")
     result_healthy_check = healthy.llm_health_check()
 
@@ -25,7 +26,7 @@ def main():
             messages.append({"role": "user", "content": user_input_prompt})
 
             while True:
-                response_req_llm = client.req_to_llm(messages)
+                response_req_llm = client.req_to_llm(messages, manager.slot_status())
 
                 res_action = response_req_llm.get("action")
                 tool_input = response_req_llm.get("input", {})
@@ -46,11 +47,9 @@ def main():
                     print(f"[*] 카프리가 {target_slot}번 슬롯의 상태를 조회합니다...")
 
                     slot_result = manager.get_result(target_slot)
+                    result_code = slot_result[0]
 
-                    if slot_result is None:
-                        result_msg = f"[{target_slot}번 슬롯] 아직 작업이 진행 중이거나 비어 있습니다."
-                    else:
-                        result_msg = f"[{target_slot}번 슬롯] 작업 완료 결과:\n {slot_result}"
+                    result_msg = slot_result[1]
                     
                     print(result_msg)
 
@@ -60,14 +59,14 @@ def main():
                     })
                 
                 else:
-                    if slot == 0:
+                    if slot == "0":
                         print(f"[*] 카프리가 도구를 실행합니다 : {res_action} {tool_input}")
                         tool_result = base.main(res_action, tool_input, message)
 
                         print(f"[*] 도구 '{res_action}' 실행 결과: {tool_result}")
 
                         messages.append({
-                            "role": "user",
+                            "role": "assistant",
                             "content": f"[도구 '{res_action}' 실행 결과]\n {tool_result}"
                         })
                     else:
@@ -78,7 +77,7 @@ def main():
                         print(f"[*] {slot}번 슬롯에 작업이 등록되었습니다. (백그라운드 실행 중)")
                         
                         messages.append({
-                            "role": "user",
+                            "role": "assistant",
                             "content": f"[시스템] 작업이 {slot}번 슬롯에 백그라운드 등록되었습니다."
                         })
                         break
