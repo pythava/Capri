@@ -1,10 +1,12 @@
 import requests
 from config import BASE_URL, MODEL_NAME, API_KEY
 import json
+from datetime import datetime
 
 def req_to_llm(messages, slot_status):
-
-    messages.append({"role": "assistant", "content": f"현재 슬롯 상태 : {slot_status}"})
+    now = datetime.now()
+    messages.append({"role": "assistant", "content": f"현재 슬롯 상태 : {slot_status}\n[현재 시각] : {now.hour}.{now.minute}.{now.second}"})
+    messages.append({"role": "system", "content": f"[체크리스트] 목표를 달성했는지 확인하세요 정확히"})
 
     res = requests.post(
         f"{BASE_URL}/api/chat",

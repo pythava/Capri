@@ -3,6 +3,7 @@ from tools.implementations.bash import bash
 from tools.implementations.python_runner import python_runner
 from tools.implementations.file_interactive import file_generate
 from tools.implementations.dir_scan import dir_scan
+from tools.implementations.web_serch import web_search
 
 tool_list = TOOLS
 
@@ -15,7 +16,8 @@ TOOL_MAP = {
     "bash": bash,
     "python_runner": python_runner,
     "file_generate": file_generate,
-    "dir_scan": dir_scan
+    "dir_scan": dir_scan,
+    "web_search": web_search
 }
 
 def execute_tool(llm_action, llm_input):

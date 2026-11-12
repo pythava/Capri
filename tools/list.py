@@ -1,1 +1,1 @@
-TOOLS = ["bash", "python_runner", "file_generate", "dir_scan"]
+TOOLS = ["bash", "python_runner", "file_generate", "dir_scan", "web_search"]

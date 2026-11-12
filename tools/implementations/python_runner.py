@@ -21,7 +21,7 @@ def python_runner(code):
         )
         return result.stdout + result.stderr
     except subprocess.TimeoutExpired:
-        return "에러: 코드 실행이 30초를 초과해 중단됐습니다"
+        return "에러: 코드 실행이 120초를 초과해 중단됐습니다"
     finally:
         if os.path.exists(file_name):
             os.remove(file_name)
